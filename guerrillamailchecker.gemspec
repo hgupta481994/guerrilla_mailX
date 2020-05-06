@@ -1,18 +1,22 @@
-Gem::Specification.new do |s|
-  s.name        = 'guerrillamailchecker'
-  s.version     = '0.0.1'
-  s.date        = '2020-04-30'
-  s.summary     = "Ruby gem to get mail from guerrillamail.com"
-  s.description = "Ruby gem to get mail from guerrillamail.com"
-  s.authors     = ["Himanshu Gupta"]
-  s.email       = 'gupta.himanshu@thinkfuture.us'
-  s.files       = %w[guerrillamailchecker.gemspec] + Dir['lib/**/*.rb']
-  s.homepage    = 'https://github.com/himanshu-thinkfuture/guerrillamail-checker'
+Gem::Specification.new do |spec|
+  spec.name        = 'guerrillamailchecker'
+  spec.version     = '0.0.1'
+  spec.date        = '2020-04-30'
+  spec.summary     = "Ruby gem to get mail from guerrillamail.com"
+  spec.description = "Ruby gem to get mail from guerrillamail.com"
+  spec.authors     = ["Himanshu Gupta"]
+  spec.email       = 'gupta.himanshu@thinkfuture.us'
+  spec.files       = %w[guerrillamailchecker.gemspec] + Dir['lib/**/*.rb']
+  spec.homepage    = 'https://github.com/himanshu-thinkfuture/guerrillamail-checker'
 
-  s.require_paths = ['lib']
+  spec.require_paths = ['lib']
+  
 
-  s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rake', '~> 10.0'
-  s.add_development_dependency 'rest-client', '~>2.1.0'
-  s.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake', '>= 10.0'
+  # spec.add_development_dependency 'rspec', '>= 3.9.0'
+  spec.add_development_dependency 'pry' 
+
+  spec.add_runtime_dependency 'rest-client', '>=2.1.0'
+
 end

@@ -1,5 +1,6 @@
-require 'rubygems'
+# require 'rubygems'
 require 'rest-client'
-require 'rspec'
+require 'pry'
+# require 'rspec'
 # require 'clipboard'
 require 'guerrillamailchecker/api.rb'
