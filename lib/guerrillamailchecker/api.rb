@@ -2,16 +2,21 @@
 # require 'fileutils'
 require 'rest-client'
 require 'json'
+require 'date'
+require 'rainbow'
+require 'active_support'
+require 'active_support/core_ext'
+
 require 'pry'
 # require 'clipboard'
 # require 'rspec'
 
-module GuerrillamailChecker
-  class API
+module Guerrilla
+  class Api
   	def self.send_request(method, url, params={})
 	    response = RestClient::Request.execute(method: method, url: url, payload: params)
-	    if !response.nil? && response.code == 200
-	      {code: response.code, body: response.body.nil? ? '' : JSON.parse(response.body, symbolize_names: true) }
+	    if response.present? && response.code == 200
+	      {code: response.code, body: response.body.blank? ? '' : JSON.parse(response.body, symbolize_names: true) }
 	    else
 	      {:code=>response.code, :body=>{:person=>{}}}
 	    end 
@@ -19,18 +24,25 @@ module GuerrillamailChecker
 
   	def self.get_email_address(email_id = nil)
 	    response = send_request("POST", "https://api.guerrillamail.com/ajax.php?f=get_email_address")
-	    sid_token= response[:body][:sid_token]
-	    email_got = response[:body][:email_addr]
-	    if !email_id.nil?
-	      set_email_url = "https://api.guerrillamail.com/ajax.php?f=set_email_user&email_user=#{email_id}&lang=en&sid_token=#{sid_token}"
-	      response = send_request("POST",set_email_url)
-	      email_got = response[:body][:email_addr]
+	    sid_token = response[:body][:sid_token]
+	
+	    if email_id.present?
+			set_email_url = "https://api.guerrillamail.com/ajax.php?f=set_email_user&email_user=#{email_id}&lang=en&sid_token=#{sid_token}"
+			response = send_request("POST",set_email_url)
+			
+	    	# site_id = response[:body][:site_id]
+	    	# site = response[:body][:site]
 	    end
-	    return {email: email_got, sid_token: sid_token}
+	    email_got = response[:body][:email_addr]
+		alias_id  = response[:body][:alias]
+		timestamp = response[:body][:email_timestamp]
+    	time      = Time.at(timestamp).to_datetime.to_s
+	    valid_till = Time.at(timestamp+3600).to_datetime.to_s
+	    return {email: email_got, sid_token: sid_token, time: time, alias_id: alias_id, valid_till: valid_till}
 	    
 	  end
 
-	  def self.verify_sent_email sid_token: nil, wait: 120, body: nil, subject: nil
+	  def self.verify_last_sent_mail sid_token: nil, wait: 120, body: nil, subject: nil
 
 	    get_email_list_url = "https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&sid_token=#{sid_token}"
 	    result =[]
@@ -48,7 +60,7 @@ module GuerrillamailChecker
 	    else
 	    	result << "subject not present"
 	    end
-	    if !body.nil?
+	    if body.present?
 	    	if email_response[:body][:mail_body].include?(body)
 		    	result << "body present"
 		    else
