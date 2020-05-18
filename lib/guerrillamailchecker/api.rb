@@ -71,10 +71,30 @@ module Guerrilla
   	return response
   end
 
-	def self.forget_email(sid_token)
-		forget_sid_url = "https://api.guerrillamail.com/ajax.php?f=forget_me&sid_token=#{sid_token}"
+  def self.fetch_email(sid_token: nil, email_id: nil)
+    fetch_email_url = "https://api.guerrillamail.com/ajax.php?f=fetch_email&sid_token=#{sid_token}&email_id=#{email_id}"
+    response = send_request("POST",fetch_email_url)
+  end
+
+	def self.forget_me(sid_token: nil, email_addr: nil)
+		forget_sid_url = "https://api.guerrillamail.com/ajax.php?f=forget_me&sid_token=#{sid_token}&email_addr=#{email_addr}"
 		response = send_request("POST",forget_sid_url)
 	end
+
+  def self.del_email(sid_token: nil, email_ids: nil)
+    email_s = ""
+    if email_ids.present?
+      email_ids.each do |e|
+      email_s += "&email_ids[]=#{e}"  
+    end
+    del_email_url = "https://api.guerrillamail.com/ajax.php?f=del_email&sid_token=#{sid_token}#{email_s}"
+    response = send_request("POST",del_email_url)
+  end
+
+  def self.get_older_list(sid_token: nil, seq: nil, limit: nil)
+    get_older_list_url = "https://api.guerrillamail.com/ajax.php?f=get_older_list&sid_token=#{sid_token}&seq=#{seq}&limit=#{limit}"
+    response = send_request("POST",get_older_list_url)
+  end
 
 	private
   	def self.send_request(method, url, params={})
