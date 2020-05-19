@@ -59,6 +59,45 @@ module Guerrilla
     return result
   end
 
+  def self.verify_mail sid_token: nil, email_id: nil, offset: nil, wait: 120, body: nil, subject: nil
+
+    if !email_id.present?
+      if offset.present?
+        get_email_list_url = "https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=#{offset}&sid_token=#{sid_token}"
+      else
+        get_email_list_url = "https://api.guerrillamail.com/ajax.php?f=get_email_list&offset=0&sid_token=#{sid_token}"
+      end
+    end
+
+    result =[]
+    start_minute = Time.now
+    while Time.now <= start_minute + wait
+      sleep(5)
+      if !email_id.present?
+        response = send_request("POST",get_email_list_url)
+        mail_id = response[:body][:list][0][:mail_id]
+      else
+        mail_id = email_id
+      end
+      fetch_email_url = "https://api.guerrillamail.com/ajax.php?f=fetch_email&email_id=#{mail_id}&sid_token=#{sid_token}"
+      email_response = send_request("POST",fetch_email_url)
+      break if (email_response[:body][:mail_subject]).include?(subject.to_s) 
+    end
+    if email_response[:body][:mail_subject].include?(subject)
+      result << "subject present"
+    else
+      result << "subject not present"
+    end
+    if body.present?
+      if email_response[:body][:mail_body].include?(body)
+        result << "body present"
+      else
+        result << "body not present"
+      end
+    end
+    return result
+  end
+
   def self.check_email(sid_token, seq = 0)
   	check_email_url = "https://api.guerrillamail.com/ajax.php?f=check_email&seq=#{seq}&sid_token=#{sid_token}"
   	response = send_request("POST",check_email_url)
