@@ -6,10 +6,9 @@ require 'date'
 require 'rainbow'
 require 'active_support'
 require 'active_support/core_ext'
+require 'guerrillamailchecker/errors.rb'
+# require 'pry'
 
-require 'pry'
-# require 'clipboard'
-# require 'rspec'
 
 class Guerrilla
   @sid_token
@@ -55,9 +54,11 @@ class Guerrilla
     response = send_request("POST",set_email_url)
   end
 
-  def verify_last_sent_mail sid_token: nil, wait: 120, body: nil, subject: nil
+  def verify_last_mail sid_token: nil, wait: 120, body: nil, subject: nil
     if !subject.present?
-      return "ATTRIBUTE REQUIRED: No subject given"
+      puts "\e[31mArgument Required\e[0m: No \e[33msubject\e[0m given"
+      raise ArgumentRequiredError.new.message("subject")
+      return
     end
 
     if !sid_token.present?
@@ -69,7 +70,7 @@ class Guerrilla
     while Time.now <= start_minute + wait
       sleep(5)
       response = send_request("POST",get_email_list_url)
-      return "No Mail Present" if response[:body][:list][0] == nil
+      return "No Mail Present" if response[:body][:list] == nil || response[:body][:list][0] == nil
       mail_id = response[:body][:list][0][:mail_id]
       fetch_email_url = "https://api.guerrillamail.com/ajax.php?f=fetch_email&email_id=#{mail_id}&sid_token=#{sid_token}"
       email_response = send_request("POST",fetch_email_url)
@@ -92,7 +93,9 @@ class Guerrilla
 
   def verify_mail sid_token: nil, email_id: nil, offset: nil, wait: 120, body: nil, subject: nil
     if !subject.present?
-      return "ATTRIBUTE REQUIRED: No subject given"
+      puts "\e[31mArgument Required\e[0m: No \e[33msubject\e[0m given"
+      raise ArgumentRequiredError.new.message("subject")
+      return
     end
     
     if !sid_token.present?
@@ -113,7 +116,7 @@ class Guerrilla
       sleep(5)
       if !email_id.present?
         response = send_request("POST",get_email_list_url)
-        return "No Mail Present" if response[:body][:list][0] == nil
+        return "No Mail Present" if response[:body][:list] == nil || response[:body][:list][0] == nil
         mail_id = response[:body][:list][0][:mail_id]
       else
         mail_id = email_id
@@ -157,7 +160,9 @@ class Guerrilla
 
   def fetch_email(sid_token: nil, mail_id: nil)
     if !mail_id.present?
-      return "ATTRIBUTE REQUIRED: No mail_id given"
+      puts "\e[31mArgument Required\e[0m: No \e[33mmail_id\e[0m given"
+      raise ArgumentRequiredError.new.message("mail_id")
+      return
     end
     if !sid_token.present?
       sid_token = @sid_token
@@ -174,9 +179,35 @@ class Guerrilla
 		response = send_request("POST",forget_sid_url)
 	end
 
+  def self.forget_me(sid_token: nil, email_addr: nil)
+    if !sid_token.present?
+      puts "\e[31mArgument Required\e[0m: No \e[33msid_token\e[0m given"
+      raise ArgumentRequiredError.new.message("sid_token")
+      return
+    end
+    forget_sid_url = "https://api.guerrillamail.com/ajax.php?f=forget_me&sid_token=#{sid_token}&email_addr=#{email_addr}"
+    response = send_request("POST",forget_sid_url)
+  end
+
   def del_email(sid_token: nil, email_ids: nil)
     if !sid_token.present?
       sid_token = @sid_token
+    end
+    email_s = ""
+    if email_ids.present?
+      email_ids.each do |e|
+        email_s += "&email_ids[]=#{e}"  
+      end
+    end
+    del_email_url = "https://api.guerrillamail.com/ajax.php?f=del_email&sid_token=#{sid_token}#{email_s}"
+    response = send_request("POST",del_email_url)
+  end
+
+  def self.del_email(sid_token: nil, email_ids: nil)
+    if !sid_token.present?
+      puts "\e[31mArgument Required\e[0m: No \e[33msid_token\e[0m given"
+      raise ArgumentRequiredError.new.message("sid_token")
+      return
     end
     email_s = ""
     if email_ids.present?
@@ -197,12 +228,15 @@ class Guerrilla
   end
 
 	private
-  	def send_request(method, url, params={})
-	    response = RestClient::Request.execute(method: method, url: url, payload: params)
-	    if response.present? && response.code == 200
-	      {code: response.code, body: response.body.blank? ? '' : JSON.parse(response.body, symbolize_names: true) }
-	    else
-	      {:code=>response.code, :body=>{:person=>{}}}
-	    end 
-		end
+    def self.send_request(method, url, params={})
+      response = RestClient::Request.execute(method: method, url: url, payload: params)
+      if response.present? && response.code == 200
+        {code: response.code, body: response.body.blank? ? '' : JSON.parse(response.body, symbolize_names: true) }
+      else
+        {:code=>response.code, :body=>{:person=>{}}}
+      end 
+    end
+    def send_request(method, url, params={})
+      self.class.send_request(method, url, params={})
+    end
 end

@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name        = 'guerrillamailchecker'
-  spec.version     = '0.0.1'
+  spec.version     = '0.9'
   spec.date        = '2020-04-30'
   spec.summary     = "Ruby gem to get mail from guerrillamail.com"
   spec.description = "Ruby gem to get mail from guerrillamail.com"
