@@ -7,7 +7,6 @@ require 'rainbow'
 require 'active_support'
 require 'active_support/core_ext'
 require 'guerrillamailchecker/errors.rb'
-# require 'pry'
 
 
 class Guerrilla
