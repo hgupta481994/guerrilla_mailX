@@ -1,9 +1,10 @@
 Gem::Specification.new do |spec|
-  spec.name        = 'guerrillamailchecker'
-  spec.version     = '0.9'
-  spec.date        = '2020-04-30'
-  spec.summary     = "Ruby gem to get mail from guerrillamail.com"
-  spec.description = "Ruby gem to get mail from guerrillamail.com"
+  spec.name        = 'guerrilla_mailX'
+  spec.version     = '0.0.9'
+  spec.date        = '2020-05-20'
+  spec.summary     = "Ruby gem to get mail from guerrillamail.com and verify sent mails"
+  spec.description = "Ruby gem to get mail from guerrillamail.com. With this gem you can use guerrillamail 
+                      APIs and verify subject and body of email received."
   spec.authors     = ["Himanshu Gupta"]
   spec.email       = 'gupta.himanshu@thinkfuture.us'
   spec.files       = %w[guerrillamailchecker.gemspec] + Dir['lib/**/*.rb']
