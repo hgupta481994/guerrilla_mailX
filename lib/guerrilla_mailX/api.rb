@@ -6,7 +6,7 @@ require 'date'
 require 'rainbow'
 require 'active_support'
 require 'active_support/core_ext'
-require 'guerrillamailchecker/errors.rb'
+require 'guerrilla_mailX/errors.rb'
 
 
 class Guerrilla
@@ -56,7 +56,7 @@ class Guerrilla
   def verify_last_mail sid_token: nil, wait: 120, body: nil, subject: nil
     if !subject.present?
       puts "\e[31mArgument Required\e[0m: No \e[33msubject\e[0m given"
-      raise ArgumentRequiredError.new.message("subject")
+      raise Error.new.message("subject")
       return
     end
 
@@ -93,7 +93,7 @@ class Guerrilla
   def verify_mail sid_token: nil, email_id: nil, offset: nil, wait: 120, body: nil, subject: nil
     if !subject.present?
       puts "\e[31mArgument Required\e[0m: No \e[33msubject\e[0m given"
-      raise ArgumentRequiredError.new.message("subject")
+      raise Error.new.message("subject")
       return
     end
     
@@ -139,7 +139,7 @@ class Guerrilla
     return result
   end
 
-  def check_email(seq: 0, sid_token: nil)
+  def check_email(sid_token: nil, seq: 0)
     if !sid_token.present?
       sid_token = @sid_token
     end
@@ -160,7 +160,7 @@ class Guerrilla
   def fetch_email(sid_token: nil, mail_id: nil)
     if !mail_id.present?
       puts "\e[31mArgument Required\e[0m: No \e[33mmail_id\e[0m given"
-      raise ArgumentRequiredError.new.message("mail_id")
+      raise Error.new.message("mail_id")
       return
     end
     if !sid_token.present?
@@ -181,7 +181,7 @@ class Guerrilla
   def self.forget_me(sid_token: nil, email_addr: nil)
     if !sid_token.present?
       puts "\e[31mArgument Required\e[0m: No \e[33msid_token\e[0m given"
-      raise ArgumentRequiredError.new.message("sid_token")
+      raise Error.new.message("sid_token")
       return
     end
     forget_sid_url = "https://api.guerrillamail.com/ajax.php?f=forget_me&sid_token=#{sid_token}&email_addr=#{email_addr}"
@@ -205,7 +205,7 @@ class Guerrilla
   def self.del_email(sid_token: nil, email_ids: nil)
     if !sid_token.present?
       puts "\e[31mArgument Required\e[0m: No \e[33msid_token\e[0m given"
-      raise ArgumentRequiredError.new.message("sid_token")
+      raise Error.new.message("sid_token")
       return
     end
     email_s = ""

@@ -1,4 +1,4 @@
-class ArgumentRequiredError < StandardError
+class Error < StandardError
 	def message(arg)
 	  "Argument '#{arg}' is missing"
 	end
